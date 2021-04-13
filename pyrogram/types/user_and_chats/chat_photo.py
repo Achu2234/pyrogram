@@ -28,39 +28,25 @@ class ChatPhoto(Object):
     """A chat photo.
 
     Parameters:
-        small_file_id (``str``):
-            File identifier of small (160x160) chat photo.
-            This file_id can be used only for photo download and only for as long as the photo is not changed.
+        file_id (``str``):
+            Docs
 
-        small_photo_unique_id (``str``):
-            Unique file identifier of small (160x160) chat photo, which is supposed to be the same over time and for
-            different accounts. Can't be used to download or reuse the file.
-
-        big_file_id (``str``):
-            File identifier of big (640x640) chat photo.
-            This file_id can be used only for photo download and only for as long as the photo is not changed.
-
-        big_photo_unique_id (``str``):
-            Unique file identifier of big (640x640) chat photo, which is supposed to be the same over time and for
-            different accounts. Can't be used to download or reuse the file.
+        file_unique_id (``str``):
+            Docs
     """
 
     def __init__(
         self,
         *,
         client: "pyrogram.Client" = None,
-        small_file_id: str,
-        small_photo_unique_id: str,
-        big_file_id: str,
-        big_photo_unique_id: str
+        file_id: str,
+        file_unique_id: str,
 
     ):
         super().__init__(client)
 
-        self.small_file_id = small_file_id
-        self.small_photo_unique_id = small_photo_unique_id
-        self.big_file_id = big_file_id
-        self.big_photo_unique_id = big_photo_unique_id
+        self.file_id = file_id
+        self.file_unique_id = file_unique_id
 
     @staticmethod
     def _parse(
@@ -72,40 +58,19 @@ class ChatPhoto(Object):
         if not isinstance(chat_photo, (raw.types.UserProfilePhoto, raw.types.ChatPhoto)):
             return None
 
-        media_id = chat_photo.photo_id if isinstance(chat_photo, raw.types.UserProfilePhoto) else 0
-
         return ChatPhoto(
-            small_file_id=FileId(
+            file_id=FileId(
                 file_type=FileType.CHAT_PHOTO,
                 dc_id=chat_photo.dc_id,
-                media_id=media_id,
+                media_id=chat_photo.photo_id,
                 access_hash=0,
-                volume_id=chat_photo.photo_small.volume_id,
-                thumbnail_source=ThumbnailSource.CHAT_PHOTO_SMALL,
-                local_id=chat_photo.photo_small.local_id,
-                chat_id=peer_id,
-                chat_access_hash=peer_access_hash
-            ).encode(),
-            small_photo_unique_id=FileUniqueId(
-                file_unique_type=FileUniqueType.PHOTO,
-                volume_id=chat_photo.photo_small.volume_id,
-                local_id=chat_photo.photo_small.local_id
-            ).encode(),
-            big_file_id=FileId(
-                file_type=FileType.CHAT_PHOTO,
-                dc_id=chat_photo.dc_id,
-                media_id=media_id,
-                access_hash=0,
-                volume_id=chat_photo.photo_big.volume_id,
                 thumbnail_source=ThumbnailSource.CHAT_PHOTO_BIG,
-                local_id=chat_photo.photo_big.local_id,
                 chat_id=peer_id,
                 chat_access_hash=peer_access_hash
             ).encode(),
-            big_photo_unique_id=FileUniqueId(
+            file_unique_id=FileUniqueId(
                 file_unique_type=FileUniqueType.PHOTO,
-                volume_id=chat_photo.photo_big.volume_id,
-                local_id=chat_photo.photo_big.local_id
+                media_id=chat_photo.photo_id
             ).encode(),
             client=client
         )
